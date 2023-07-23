@@ -56,7 +56,6 @@ class RegisterController extends Controller
         }
 
     }
-
     public function loginByUser(Request $request): JsonResponse
     {
         try {

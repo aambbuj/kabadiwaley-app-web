@@ -6,6 +6,7 @@
 /storage/*.key
 /vendor
 .env
+sahinoor_new_app_web.zip
 .env.backup
 .env.production
 .phpunit.result.cache

@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('banners', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('image_id')->nullable();
             $table->string('banner_name');
             $table->string('image_url');
             $table->string('status');
             $table->timestamps();
+            $table->foreign('image_id')->references('id')->on('images');
         });
     }
 

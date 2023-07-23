@@ -26,7 +26,7 @@ class RegisterController extends Controller
             }
             
         } catch (\Throwable $th) {
-            return $this->sendError($th, $request->user_type); 
+            return $this->sendError($th, "Server Error"); 
 
         }
 
@@ -57,4 +57,26 @@ class RegisterController extends Controller
 
     }
 
+    public function loginByUser(Request $request): JsonResponse
+    {
+        try {
+            if($request->phone){ 
+                $result = User::where('phone',$request->phone)->first();
+                if ($result) {
+                    return $this->sendResponse($result, 'Already sign-up , please go to next option.');
+                } else {
+                    $create = User::create(['phone' => $request->phone, "user_type" => "User" ]);
+                    $create["otp"] = 1234;
+                    return $this->sendResponse($create, 'User sign-up successfully .');
+                }
+            } 
+            else{ 
+                return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
+            } 
+        } catch (\Throwable $th) {
+            return $this->sendError($th, "Please try once");
+
+        }
+
+    }
 }

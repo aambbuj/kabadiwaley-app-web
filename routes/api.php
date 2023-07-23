@@ -20,7 +20,10 @@ use App\Http\Controllers\CategoryController;
 Route::post('register', [RegisterController::class, 'register']);
 Route::post('login', [RegisterController::class, 'login']);
 Route::post('login-by-user', [RegisterController::class, 'loginByUser']);
+
 Route::middleware('auth:api')->group( function () {
+    
 Route::post('add-category', [CategoryController::class, 'addCategory']);
+Route::post('image-upload', [CategoryController::class, 'imageUpload']);
     
 });

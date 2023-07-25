@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Category;
+use App\Models\User;
 use App\Models\Image;
 use Illuminate\Support\Facades\Auth;
 use Validator;
@@ -36,6 +37,51 @@ class CategoryController extends Controller
         }
 
     }
+
+    public function categoryList(Request $request): JsonResponse
+    {
+        try {
+            $Categories = Category::get();
+            return $this->sendResponse($Categories, 'Category List get successfully .');
+        } catch (\Throwable $th) {
+            return $this->sendError($th, 'Category list not geting !! .');
+
+        }
+    }
+
+    public function categoryEdit(Request $request): JsonResponse
+    {
+        try {
+            $Categories = Category::where('id',$request->id)->update($request->all());
+            return $this->sendResponse($Categories, 'Category update successfully .');
+        } catch (\Throwable $th) {
+            return $this->sendError($th, 'Category update not !! .');
+
+        }
+    }
+
+    public function categoryDelete(Request $request): JsonResponse
+    {
+        try {
+            $Categories = Category::where("id",$request->id)->delete();
+            return $this->sendResponse($Categories, 'Category delete successfully .');
+        } catch (\Throwable $th) {
+            return $this->sendError($th, 'Category not delete  !! .');
+
+        }
+    }
+
+    public function userList(Request $request): JsonResponse
+    {
+        try {
+            $User = User::where("user_type",$request->user_type)->get();
+            return $this->sendResponse($User, 'User List get successfully .');
+        } catch (\Throwable $th) {
+            return $this->sendError($th, 'User list not geting !! .');
+
+        }
+    }
+
    public function imageUpload(Request $request): JsonResponse
    {
        try {

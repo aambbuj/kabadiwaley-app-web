@@ -42,7 +42,7 @@ class RegisterController extends Controller
         try {
             if(Auth::attempt(['email' => $request->email, 'password' => $request->password,'user_type' => $request->user_type])){ 
                 $user = Auth::user(); 
-                $success['token'] =  $user->createToken('MyApp')-> accessToken; 
+                $success['token'] =  $user->createToken('MyApp')->accessToken; 
                 $success['name'] =  $user->name;
        
                 return $this->sendResponse($success, 'User login successfully.');
@@ -78,4 +78,25 @@ class RegisterController extends Controller
         }
 
     }
+
+    public function verifiedOtp(Request $request): JsonResponse
+    {
+        try {
+            if($result = User::where('id',$request->id)->first()){ 
+                if ($result) {
+                    $result['token'] =  $result->createToken('MyApp')->accessToken; 
+                    return $this->sendResponse($result, 'Already sign-up , please go to next option.');
+                }
+            } 
+            else{ 
+                return $this->sendError('Unauthorised.', 'otp not found');
+            } 
+        } catch (\Throwable $th) {
+            return $this->sendError($th, "Please try once");
+
+        }
+
+    }
+
+    
 }

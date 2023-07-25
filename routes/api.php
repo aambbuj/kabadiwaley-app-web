@@ -19,10 +19,17 @@ use App\Http\Controllers\CategoryController;
 Route::post('register', [RegisterController::class, 'register']);
 Route::post('login', [RegisterController::class, 'login']);
 Route::post('login-by-user', [RegisterController::class, 'loginByUser']);
+Route::post('verified-otp', [RegisterController::class, 'verifiedOtp']);
 
 Route::middleware('auth:api')->group( function () {
 
 Route::post('add-category', [CategoryController::class, 'addCategory']);
-Route::post('image-upload', [CategoryController::class, 'imageUpload']);
-    
+
+Route::post('category-list', [CategoryController::class, 'categoryList']);
+Route::post('category-edit', [CategoryController::class, 'categoryEdit']);
+Route::post('category-delete', [CategoryController::class, 'categoryDelete']);
+Route::post('user-list', [CategoryController::class, 'userList']);
+Route::post('image-upload', [CategoryController::class, 'imageUpload']);  
+
+
 });

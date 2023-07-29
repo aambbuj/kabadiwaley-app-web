@@ -18,44 +18,59 @@ class RegisterController extends Controller
                 $input['password'] = bcrypt($input['password']);
                 $user = User::create($input);
                 $success['token'] =  $user->createToken('MyApp')->accessToken;
-                $success['name'] =  $user->name;
+                $success['user'] =  $user;
            
                 return $this->sendResponse($success, 'User register successfully.');
             } else {
-                return $this->sendError("Validation Error.", "You are not sign-up directly .. please use app !!"); 
+                return $this->sendError("You are not sign-up directly .. please use app !!"); 
             }
             
         } catch (\Throwable $th) {
-            return $this->sendError($th, "Server Error"); 
+            return $this->sendError("Server Error"); 
 
         }
 
     }
      
-    /**
-     * Login api
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function login(Request $request): JsonResponse
     {
         try {
             if(Auth::attempt(['email' => $request->email, 'password' => $request->password,'user_type' => $request->user_type])){ 
                 $user = Auth::user(); 
                 $success['token'] =  $user->createToken('MyApp')->accessToken; 
-                $success['name'] =  $user->name;
+                $success['user'] =  $user;
        
                 return $this->sendResponse($success, 'User login successfully.');
             } 
             else{ 
-                return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
+                return $this->sendError('User id and password is wrong !!.');
             } 
         } catch (\Throwable $th) {
-            return $this->sendError('server error.', "Please try once");
+            return $this->sendError("Please try once");
 
         }
 
     }
+
+
+    public function loginout(Request $request): JsonResponse
+    {
+        try {
+            if($success = $request->user()->token()->revoke()){ 
+                return $this->sendResponse($success, 'User Logout successfully.');
+            } 
+            else{ 
+                return $this->sendError('Not Logout !!.');
+            } 
+        } catch (\Throwable $th) {
+            return $this->sendError("Please try once");
+
+        }
+
+    }
+
+
+    
     public function loginByUser(Request $request): JsonResponse
     {
         try {
@@ -70,10 +85,10 @@ class RegisterController extends Controller
                 }
             } 
             else{ 
-                return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
+                return $this->sendError("user id and password is wrong !!");
             } 
         } catch (\Throwable $th) {
-            return $this->sendError($th, "Please try once");
+            return $this->sendError("Please try once");
 
         }
 
@@ -89,14 +104,13 @@ class RegisterController extends Controller
                 }
             } 
             else{ 
-                return $this->sendError('Unauthorised.', 'otp not found');
+                return $this->sendError('otp not found');
             } 
         } catch (\Throwable $th) {
-            return $this->sendError($th, "Please try once");
+            return $this->sendError("Please try once");
 
         }
 
     }
-
     
 }

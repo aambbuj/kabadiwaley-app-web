@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Category;
+use App\Models\Banner;
 use App\Models\User;
 use App\Models\Image;
 use Illuminate\Support\Facades\Auth;
@@ -11,80 +12,22 @@ use Validator;
 use Illuminate\Http\JsonResponse;
 class CategoryController extends Controller
 {
-    public function addCategory(Request $request): JsonResponse
-    {
-        try {
-            $validator = Validator::make($request->all(), [
-                'category_name' => 'required',
-                'price' => 'required',
-                'price_type' => 'required',
-                'image_url' => 'required',
-                'image_id' => 'required',
-            ]);
-         
-            if($validator->fails()){
-                return $this->sendError('Validation Error.', $validator->errors());       
-            }
-         
-            $input = $request->all();
-            $input["user_id"] = Auth::user()->id;
-            $Category = Category::create($input);
-       
-            return $this->sendResponse($Category, 'Category create successfully.');
-        } catch (\Throwable $th) {
-            return $this->sendError($th, 'Category not created , please try once !! .');
 
-        }
-
-    }
-
-    public function categoryList(Request $request): JsonResponse
-    {
-        try {
-            $Categories = Category::get();
-            return $this->sendResponse($Categories, 'Category List get successfully .');
-        } catch (\Throwable $th) {
-            return $this->sendError($th, 'Category list not geting !! .');
-
-        }
-    }
-
-    public function categoryEdit(Request $request): JsonResponse
-    {
-        try {
-            $Categories = Category::where('id',$request->id)->update($request->all());
-            return $this->sendResponse($Categories, 'Category update successfully .');
-        } catch (\Throwable $th) {
-            return $this->sendError($th, 'Category update not !! .');
-
-        }
-    }
-
-    public function categoryDelete(Request $request): JsonResponse
-    {
-        try {
-            $Categories = Category::where("id",$request->id)->delete();
-            return $this->sendResponse($Categories, 'Category delete successfully .');
-        } catch (\Throwable $th) {
-            return $this->sendError($th, 'Category not delete  !! .');
-
-        }
-    }
-
+    
     public function userList(Request $request): JsonResponse
     {
         try {
             $User = User::where("user_type",$request->user_type)->get();
             return $this->sendResponse($User, 'User List get successfully .');
         } catch (\Throwable $th) {
-            return $this->sendError($th, 'User list not geting !! .');
+            return $this->sendError('User list not geting !! .');
 
         }
     }
 
-   public function imageUpload(Request $request): JsonResponse
-   {
-       try {
+    public function imageUpload(Request $request)
+    {
+        try {
             $request->validate([
                 'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
             ]);
@@ -101,10 +44,147 @@ class CategoryController extends Controller
             return $this->sendResponse($image, 'Image upload seccess');
 
         } catch (\Throwable $th) {
-            return $this->sendError($th, 'Server Error.');
+            return $this->sendError('Server Error.');
 
         }
-    
+
     }
+
+    public function addCategory(Request $request): JsonResponse
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'category_name' => 'required',
+                'price' => 'required',
+                'price_type' => 'required',
+                'image_url' => 'required',
+                'image_id' => 'required',
+            ]);
+         
+            if($validator->fails()){
+                return $this->sendError('Validation Error.');       
+            }
+         
+            $input = $request->all();
+            $input["user_id"] = Auth::user()->id;
+            $Category = Category::create($input);
+       
+            return $this->sendResponse($Category, 'Category create successfully.');
+        } catch (\Throwable $th) {
+            return $this->sendError('Category not created , please try once !! .');
+
+        }
+
+    }
+
+    public function categoryList(Request $request): JsonResponse
+    {
+        try {
+            $Categories = Category::get();
+            return $this->sendResponse($Categories, 'Category List get successfully .');
+        } catch (\Throwable $th) {
+            return $this->sendError('Category list not geting !! .');
+
+        }
+    }
+
+    public function categoryEdit(Request $request): JsonResponse
+    {
+        try {
+            $Categories = Category::where('id',$request->id)->update($request->all());
+            return $this->sendResponse($Categories, 'Category update successfully .');
+        } catch (\Throwable $th) {
+            return $this->sendError('Category update not !! .');
+
+        }
+    }
+
+    public function categoryDelete(Request $request): JsonResponse
+    {
+        try {
+            $Categories = Category::where("id",$request->id)->delete();
+            return $this->sendResponse($Categories, 'Category delete successfully .');
+        } catch (\Throwable $th) {
+            return $this->sendError('Category not delete  !! .');
+
+        }
+    }
+
+
+
+    ///////////////Banner ////////////////
+
+
+    public function bannerAdd(Request $request)
+    {
+
+        try {
+
+            $validator = Validator::make($request->all(), [
+                'banner_name' => 'required',
+                'image_url' => 'required',
+                'image_id' => 'required',
+            ]);
+         
+            if($validator->fails()){
+                return $this->sendError('Validation Error.');       
+            }
+         
+            $input = $request->all();
+            $input["status"]=true;
+            $Banner = Banner::create($input);
+            return $this->sendResponse($Banner->all(), 'Banner create successfully.');
+       
+            return $this->sendResponse($Banner, 'Banner create successfully.');
+        } catch (\Throwable $th) {
+            return $this->sendError("Server Error");
+
+        }
+
+    }
+
+    public function bannerList(Request $request)
+    {
+        try {
+            $Banner = Banner::get();
+            return $this->sendResponse($Banner, 'Banner List get successfully .');
+        } catch (\Throwable $th) {
+            return $this->sendError('Banner list not geting !! .');
+
+        }
+    }
+
+    public function bannerEdit(Request $request)
+    {
+        try {
+            $Banner = Banner::where('id',$request->id)->update($request->all());
+            if ($Banner) {
+                return $this->sendResponse($Banner, 'Banner update successfully .');
+
+            } else {
+                return $this->sendError('Banner not update !! .');
+
+            }
+            
+        } catch (\Throwable $th) {
+            return $this->sendError('Banner update not !! .');
+
+        }
+    }
+
+    public function bannerDelete(Request $request)
+    {
+        try {
+            $Banner = Banner::where("id",$request->id)->delete();
+            return $this->sendResponse($Banner, 'Banner delete successfully .');
+        } catch (\Throwable $th) {
+            return $this->sendError('Banner not delete  !! .');
+
+        }
+    }
+
+
+    
+
     
 }

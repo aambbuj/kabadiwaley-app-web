@@ -7,9 +7,13 @@ use App\Models\Category;
 use App\Models\Banner;
 use App\Models\User;
 use App\Models\Image;
+use App\Models\userDetail;
+use App\Models\Order;
+use App\Models\OrderDetail;
 use Illuminate\Support\Facades\Auth;
 use Validator;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Str;
 class CategoryController extends Controller
 {
 
@@ -183,8 +187,112 @@ class CategoryController extends Controller
         }
     }
 
+    public function addProfileDetails(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "id" => 'required',
+                "name" => 'required',
+                "email" => 'required',
+                "phone" => 'required',
+                "address_one" => 'required',
+                "pin" => 'required',
+                "save_for" => 'required',
+                "latitude" => 'required',
+                "longitude" => 'required',
+            ]);
+            if($validator->fails()){
+                return $this->sendError('Validation Error.');       
+            }
+            $user = User::where('id',$request->id)->update($request->all());
+            if ($user) {
+                return $this->sendResponse($user, 'User update successfully.');
+            } else {
+                return $this->sendError('User not Update  , please try once!! .');
+            }
+               } catch (\Throwable $th) {
+            return $this->sendError('User not Update  !! .');
+        }
+    }
 
-    
+    public function addDeviceInfo(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "platform" => "required",
+                "operating_system" => "required",
+                "os_version" => "required",
+                "manufacturer" => "required",
+                "is_virtual" => "required",
+                "web_view_version" => "required",
+                "model" => "required",
+                "device_name" => "required",
+                "location" => "required",
+                "fcm_token" => "required",
+                "ip_Address" => "required"
+            ]);
+            if($validator->fails()){
+                return $this->sendError('Validation Error.');       
+            }
+            $userInfo = $request->all();
+            $userInfo["user_id"] = Auth::user()->id;
+            $user = userDetail::create($userInfo);
+            if ($user) {
+                return $this->sendResponse($user, 'Device create successfully.');
+            } else {
+                return $this->sendError('Device not creat  , please try once!! .');
+            }
+               } catch (\Throwable $th) {
+            return $this->sendError($th);
+        }
+    }
 
+    public function getProfileDetails(Request $request)
+    {
+        try {
+            $user = User::where("id",Auth::user()->id)->first();
+            if ($user) {
+                return $this->sendResponse($user, 'user details get successfully .');
+            } else {
+                return $this->sendError('user details not found');
+            }
+        } catch (\Throwable $th) {
+            return $this->sendError('user details not found');
+
+        }
+    }
+
+    public function addOrder(Request $request)
+    {
+        try {
+            if ($request->hasFile('direction_mp3')) {
+                $location = time().'.'.$request->direction_mp3->extension();  
+     
+                $path=$request->direction_mp3->move(public_path('audio'), $location);
+            }
+            $path2=url('/').'/'.$location;
+            $order_id=Str::random(10);
+            $create=Order::create([
+                'voice'=>$path2,
+                'name'=>$request->name,
+                'phone'=>$request->phone,
+                'address'=>$request->address,
+                'user_id'=>Auth::user()->id,
+                'category_id'=>$request->category_id,
+                'order_date'=>$request->order_date,
+                'category_name'=>$request->category_name,
+                'pickup_request_date'=>$request->pickup_request_date,
+                'img_url'=>$request->img_url,
+                'order_status'=>1,
+                'order_unick_id'=>$order_id,
+                'status'=>1,
+            ]);
+            return $this->sendResponse($create, 'Order create successfully .');
+        } catch (\Throwable $th) {
+            return $this->sendError('Server Error.');
+
+        }
+
+    }
     
 }

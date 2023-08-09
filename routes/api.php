@@ -30,11 +30,18 @@ Route::post('image-upload', [CategoryController::class, 'imageUpload']);
 Route::post('category-list', [CategoryController::class, 'categoryList']);
 Route::post('category-edit', [CategoryController::class, 'categoryEdit']);
 Route::post('category-delete', [CategoryController::class, 'categoryDelete']);
+Route::post('add-category', [CategoryController::class, 'addCategory']);
 ///////////////////////Banner ///////////////////////////////
 Route::post('banner-add', [CategoryController::class, 'bannerAdd']);
 Route::post('banner-list', [CategoryController::class, 'bannerList']);
 Route::post('banner-edit', [CategoryController::class, 'bannerEdit']);
 Route::post('banner-delete', [CategoryController::class, 'bannerDelete']);
 
+///////////////////user section //////////////////////////////////////////
 
+Route::post('add-profile-details', [CategoryController::class, 'addProfileDetails']);
+Route::get('get-profile-details', [CategoryController::class, 'getProfileDetails']);
+Route::post('add-device-info', [CategoryController::class, 'addDeviceInfo']);
+////////// order section /////////////
+Route::post('add-order', [CategoryController::class, 'addOrder']);
 });

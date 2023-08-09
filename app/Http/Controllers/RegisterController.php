@@ -77,11 +77,11 @@ class RegisterController extends Controller
             if($request->phone){ 
                 $result = User::where('phone',$request->phone)->first();
                 if ($result) {
-                    return $this->sendResponse($result, 'Already sign-up , please go to next option.');
+                    return $this->sendResponse($result, 'Otp send your mobile number .');
                 } else {
                     $create = User::create(['phone' => $request->phone, "user_type" => "User" ]);
                     $create["otp"] = 1234;
-                    return $this->sendResponse($create, 'User sign-up successfully .');
+                    return $this->sendResponse($create, 'Otp send your mobile number .');
                 }
             } 
             else{ 
@@ -97,10 +97,14 @@ class RegisterController extends Controller
     public function verifiedOtp(Request $request): JsonResponse
     {
         try {
-            if($result = User::where('id',$request->id)->first()){ 
-                if ($result) {
+            if($result = User::where('id',$request->id)->where("user_type","User")->first()){ 
+                if ($result && $request->otp == 1234) {
+
                     $result['token'] =  $result->createToken('MyApp')->accessToken; 
-                    return $this->sendResponse($result, 'Already sign-up , please go to next option.');
+                    return $this->sendResponse($result, 'Otp verified Successfully !!.');
+                }else{
+                    return $this->sendResponse('', 'Invalid otp');
+
                 }
             } 
             else{ 

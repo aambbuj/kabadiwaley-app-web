@@ -13,14 +13,12 @@ return new class extends Migration
     {
         Schema::create('order_details', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('category_id');
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('order_id');
-            $table->string('category_name');
-            $table->string('status');
-            $table->string('date');
+            $table->string('order_status');
+            $table->string('order_date');
+            $table->string('approve_date');
             $table->timestamps();
-            $table->foreign('category_id')->references('id')->on('categories');
             $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('order_id')->references('id')->on('orders');
         });

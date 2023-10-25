@@ -24,12 +24,12 @@ return new class extends Migration
             $table->string('location')->nullable();
             $table->string('fcm_token')->nullable();
             $table->string('ip_Address')->nullable();
+            $table->string('device_uid')->nullable();
             $table->unsignedBigInteger('user_id');
             $table->timestamps();
             $table->foreign('user_id')->references('id')->on('users');
         });
     }
-
     /**
      * Reverse the migrations.
      */

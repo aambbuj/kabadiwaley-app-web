@@ -44,4 +44,6 @@ Route::get('get-profile-details', [CategoryController::class, 'getProfileDetails
 Route::post('add-device-info', [CategoryController::class, 'addDeviceInfo']);
 ////////// order section /////////////
 Route::post('add-order', [CategoryController::class, 'addOrder']);
+Route::post('order-date-wise', [CategoryController::class, 'orderDateWise']);
+Route::post('single-order-details', [CategoryController::class, 'singleOrderDetails']);
 });

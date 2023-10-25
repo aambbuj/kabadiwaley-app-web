@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Validator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 class CategoryController extends Controller
 {
 
@@ -29,29 +30,38 @@ class CategoryController extends Controller
         }
     }
 
+    
     public function imageUpload(Request $request)
     {
-        try {
-            $request->validate([
-                'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
-            ]);
+
+        if (is_string($request->input('image'))) 
+        {
+            $base64Image = $request->input('image');
+            $data = explode(',', $base64Image);
+            $imageData = base64_decode($data[1]);
+            $time = md5(date("Y/m/d-H:ia")); 
+            $imageName = Str::random(10).'.'.'jpeg';
+            $profileImage = $time.'_'.$imageName;
+            $productImages=  'base64Image/'.$profileImage;
+            $product = array('url'=>'public/'.$productImages,'image_name' => $profileImage,'model_name' => $request->model_name,"image_type"=> $request->image_type);
+            file_put_contents($productImages, $imageData);
+            $image = Image::create($product);
+            return $this->sendResponse($image, 'upload seccess');
+        }
+
+        if ($request->hasFile('image')) {     
             $image_type = $request->image_type;
             $model_name = $request->model_name;
             $image_name = $request->file('image')->getClientOriginalName();
             $path = "storage/app/".$request->file('image')->store('public/'.$model_name);
-            $image = new Image;
-            $image->image_name = $image_name;
-            $image->url = $path;
-            $image->model_name = $model_name;
-            $image->image_type = $image_type;     
-            $image->save();
-            return $this->sendResponse($image, 'Image upload seccess');
-
-        } catch (\Throwable $th) {
-            return $this->sendError('Server Error.');
-
         }
-
+        $image = new Image();
+        $image->image_name = $image_name;
+        $image->url = $path;
+        $image->model_name = $model_name;
+        $image->image_type = $image_type;     
+        $image->save();
+        return $this->sendResponse($image, 'upload seccess');
     }
 
     public function addCategory(Request $request): JsonResponse
@@ -229,7 +239,8 @@ class CategoryController extends Controller
                 "device_name" => "required",
                 "location" => "required",
                 "fcm_token" => "required",
-                "ip_Address" => "required"
+                "ip_Address" => "required",
+                "device_uid" => "required",
             ]);
             if($validator->fails()){
                 return $this->sendError('Validation Error.');       
@@ -264,16 +275,15 @@ class CategoryController extends Controller
 
     public function addOrder(Request $request)
     {
-        try {
-            if ($request->hasFile('direction_mp3')) {
-                $location = time().'.'.$request->direction_mp3->extension();  
-     
-                $path=$request->direction_mp3->move(public_path('audio'), $location);
-            }
-            $path2=url('/').'/'.$location;
+       
+            // if ($request->hasFile('direction_mp3')) {
+            //     $location = time().'.'.$request->direction_mp3->extension();  
+            //     $path=$request->direction_mp3->move(public_path('audio'), $location);
+            // }
+            // $path2=url('/').'/'.$location;
             $order_id=Str::random(10);
             $create=Order::create([
-                'voice'=>$path2,
+                'voice'=>$request->direction_mp3,
                 'name'=>$request->name,
                 'phone'=>$request->phone,
                 'address'=>$request->address,
@@ -286,13 +296,27 @@ class CategoryController extends Controller
                 'order_status'=>1,
                 'order_unick_id'=>$order_id,
                 'status'=>1,
+                'estimated_weight'=>$request->estimated_weight,
+                'eatimated_amount'=>$request->eatimated_amount,
             ]);
             return $this->sendResponse($create, 'Order create successfully .');
-        } catch (\Throwable $th) {
-            return $this->sendError('Server Error.');
-
-        }
-
+        
     }
-    
+
+    public function orderDateWise(Request $request)
+    {
+        // dd(Auth::user());'
+        
+         $fromDate = Carbon::parse($request->from_date)->startOfDay();
+     $toDate = Carbon::parse($request->to_date)->endOfDay();
+
+        $transactions = Order::where('user_id',Auth::user()->id)->whereBetween('created_at', [$fromDate, $toDate])->get();
+
+        return response()->json(['transactions' => $transactions]);
+    }
+    public function singleOrderDetails(Request $request)
+    {    
+        $transactions = Order::where('user_id',Auth::user()->id)->where('id',$request->order_id)->first();
+        return response()->json(['transactions' => $transactions]);
+    }
 }
